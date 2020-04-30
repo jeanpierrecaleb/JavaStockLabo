@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<entity-mappings
+    xmlns="http://java.sun.com/xml/ns/persistence/orm"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm orm_2_0.xsd"
+    version="2.0">
+    
+    <!-- BaseEntite -->
+
+    <mapped-superclass class="org.lab.dependances.BaseEntite">    
+        <attributes>
+            <id name="id">
+                <column  name="id" nullable="false" />
+                <generated-value strategy = "IDENTITY" generator="generator" />            
+            </id>
+            <basic name="dateCreation">
+                <temporal>TIMESTAMP</temporal>
+            </basic>
+            <basic name ="encodeur"/>
+            <version name = "version"/>
+        </attributes> 
+    </mapped-superclass>
+
+        
+    <!--Adresse-->
+    <embeddable class = "org.lab.entites.Adresse">
+        <attributes>
+            <basic name = "pays"/>
+            <basic name = "telephone"/>
+            <basic name = "email"/>
+            <basic name="naissance">
+                <temporal>DATE</temporal>
+            </basic>
+        </attributes>
+    </embeddable>
+        
+    <!--ClientEntite-->
+    <entity class="org.lab.entites.ClientEntite">
+        <table name="gestockclient"/>
+        
+        <attribute-override name="id">
+            <column name="id_client"/>
+        </attribute-override>
+        
+        <attributes>
+            <basic name="nom"/>
+            <basic name="prenom"/>
+            <embedded name="adresse"/>
+            <one-to-many name="factures" mapped-by="client" fetch="LAZY">
+                <cascade>
+                    <cascade-all/>
+                </cascade>
+            </one-to-many>
+        </attributes>
+    </entity>
+        
+    <!-- ProduitEntite-->
+    <entity class = "org.lab.entites.ProduitEntite">
+        <table name = "gestockproduit"/>
+        
+        <attribute-override name = "id">
+            <column name = "id_produit"/>
+        </attribute-override>
+            
+        <attributes>
+            <basic name = "designation"/>
+            <basic name = "prix"/>
+            <!--<many-to-many name = "factures" mapped-by="produits" target-entity="org.lab."/> -->
+            <one-to-many name="facturer" mapped-by="produit" fetch="LAZY">
+                <!--<basic name="">-->
+                <cascade >
+                    <cascad-all/>
+                </cascade>
+            </one-to-many>
+        </attributes>            
+    </entity>        
+        
+       
+    <!-- FactureEntite-->    
+    <entity class="org.lab.entites.FactureEntite">
+        <table name="gestockfacture"/>
+        
+        <attribute-override name="id">
+            <column name = "id_facture"/>
+        </attribute-override>
+               
+        <attributes>
+            <basic name="dateFacture">
+                <column name="dateFacture"/>
+                <temporal>DATE</temporal>
+            </basic>
+            
+            <many-to-one name="client" fetch="EAGER">
+                <join-column name="id_client" referenced-column-name="id_client"/>
+            </many-to-one>
+            
+            <one-to-many  name="facturer" mapped-by="facture" fetch="LAZY">         
+                <cascade>
+                    <cascade-all/>
+                </cascade>   
+            </one-to-many>
+        </attributes>                 
+    </entity>    
+     
+     
+    <!-- FacturerEntite -->
+    <entity class="org.lab.entites.FacturerEntite">
+        <table name = "stockfacturer">
+            <unique-constraint>
+                <column-name>id_facture</column-name>
+                <column-name>id_produit</column-name>
+            </unique-constraint>
+        </table>
+        
+        <attributes>
+            <basic name="quantite"></basic>    
+            <many-to-one name ="facture" fetch="EAGER"> 
+                <join-column name="id_facture" referenced-column="id_facture"/>
+            </many-to-one>
+            <many-to-one name="produit" fetch="EAGER" > 
+                <join-column name="id_produit" referenced-column="produit"/>
+            </many-to-one>
+        </attributes>
+    </entity>     
+     
+     
+    <!-- Utilisateur -->
+    <entity name="Utilisateur" class="org.lab.entites.Utilisateur">
+        <table name = "stockutilisateur"/>
+    
+        <attribute-override name = "id">
+            <column name="ID"/>
+        </attribute-override>
+        <attributes>
+            <basic name="nomut">
+                <column name="nomut" unique="true"/>
+            </basic>
+            <basic name="motpasse">
+                <column name="motpasse" unique="true"/>
+            </basic>      
+        </attributes>
+    </entity>
+
+</entity-mappings>
